@@ -11,6 +11,7 @@ class xl2tpd (
     $mtu            = '1300',
     $mru            = '1300',
     $debug          = false,
+    $pppoptfile     = '/etc/xl2tpd/ppp-options'
 ) {
     File {
         ensure => present,
