@@ -11,6 +11,8 @@ class xl2tpd (
     $mtu            = '1300',
     $mru            = '1300',
     $debug          = false,
+    $pppoptfile     = '/etc/xl2tpd/ppp-options',
+    $conffile       = '/etc/xl2tpd/xl2tpd.conf',
 ) {
     File {
         ensure => present,
@@ -25,12 +27,12 @@ class xl2tpd (
         ensure => $version,
     }
 
-    file { '/etc/xl2tpd/xl2tpd.conf':
+    file { $conffile:
         content => template('xl2tpd/xl2tpd.conf.erb'),
         require => Package['xl2tpd'],
     }
 
-    file { '/etc/xl2tpd/ppp-options':
+    file { $pppoptfile:
         content => template('xl2tpd/ppp-options.erb'),
         require => Package['xl2tpd'],
     }
@@ -41,6 +43,6 @@ class xl2tpd (
         pattern    => '/usr/sbin/xl2tpd',
         hasstatus  => false,
         hasrestart => true,
-        subscribe  => File['/etc/xl2tpd/xl2tpd.conf', '/etc/xl2tpd/ppp-options'],
+        subscribe  => File[$conffile, $pppoptfile],
     }
 }
