@@ -1,0 +1,5 @@
+[lac <%= @conn_name %>]
+<% @lac_config.each do |option, setting| -%>
+<%= option %> = <%= setting %>
+<% end -%>
+pppoptfile = <%= @ppp_opt_file %>

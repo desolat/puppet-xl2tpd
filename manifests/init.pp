@@ -1,18 +1,13 @@
 # ex: syntax=puppet si ts=4 sw=4 et
 
 class xl2tpd (
-    $package_name,
-    $version,
-    $service_name,
-    $min_dynamic_ip = '192.168.254.10',
-    $max_dynamic_ip = '192.168.254.250',
-    $tunnel_ip      = '192.168.254.1',
-    $dns_servers    = [ '8.8.4.4', '8.8.8.8' ],
-    $mtu            = '1300',
-    $mru            = '1300',
-    $debug          = false,
-    $pppoptfile     = '/etc/xl2tpd/ppp-options',
-    $conffile       = '/etc/xl2tpd/xl2tpd.conf',
+    # defaults are in data/
+    String $package_name,
+    String $service_name,
+    Hash $global         = {},
+    Hash $conn,
+    Boolean $debug          = false,
+    $conf_file           = '/etc/xl2tpd/xl2tpd.conf',
 ) {
     File {
         ensure => present,
@@ -22,27 +17,47 @@ class xl2tpd (
     }
 
 
-    package { 'xl2tpd':
-        name   => $package_name,
-        ensure => $version,
+    package { $package_name:
+        ensure => installed,
     }
 
-    file { $conffile:
-        content => template('xl2tpd/xl2tpd.conf.erb'),
-        require => Package['xl2tpd'],
+    concat {  $conf_file:
+        mode  => '0644',
+        owner => 'root',
+        group => 'root',
     }
 
-    file { $pppoptfile:
-        content => template('xl2tpd/ppp-options.erb'),
-        require => Package['xl2tpd'],
+    concat::fragment { 'xl2tpd_conf_header':
+        content => template('xl2tpd/xl2tpd_conf_header.erb'),
+        target  => $conf_file,
+        order   => '01',
     }
 
-    service { 'xl2tpd':
+    $conn.each |$conn_name, $config| {
+        $ppp_opt_file = "/etc/ppp/${conn_name}.l2tpd.client"
+        if has_key($config, 'lac') {
+            $lac_config = $config['lac']
+            concat::fragment { "xl2tpd_conf_lac_${conn_name}":
+                content => template('xl2tpd/xl2tpd_conf_lac.erb'),
+                target  => $conf_file,
+                order   => '02',
+                require => Package[$package_name],
+                notify  => Service[$service_name],
+            }
+        }
+        $ppp_opts = $config['ppp']
+        file { $ppp_opt_file:
+            content => template('xl2tpd/ppp-options.erb'),
+            require => Package[$package_name],
+            notify  => Service[$service_name],
+        }
+    } 
+
+    service { $service_name:
         name       => $service_name,
         ensure     => running,
         pattern    => '/usr/sbin/xl2tpd',
         hasstatus  => false,
         hasrestart => true,
-        subscribe  => File[$conffile, $pppoptfile],
     }
 }
