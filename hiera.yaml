@@ -1,10 +1,12 @@
 ---
-version: 4
-datadir: data
+version: 5
+defaults:
+  datadir: data
+  data_hash: yaml_data
+
 hierarchy:
-  - name: "Platform"
-    backend: yaml
-    paths:
-      - "osfamily/%{facts.os.family}/%{facts.os.name}"
-      - "osfamily/%{facts.os.family}"
-      - "common"
+  - name: "OS family"
+    path: "osfamily/%{facts.os.family}.yaml"
+  
+  - name: "common"
+    path: "common.yaml"
