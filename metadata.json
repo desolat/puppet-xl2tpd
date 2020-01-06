@@ -1,12 +1,12 @@
 {
-  "name": "inkblot/xl2tpd",
-  "version": "2.0.0",
-  "author": "inkblot",
+  "name": "desolat-xl2tpd",
+  "version": "0.0.1",
+  "author": "desolat",
   "license": "Apache-2.0",
-  "summary": "xl2tpd L2TP server",
-  "source": "git://github.com/inkblot/puppet-xl2tpd.git",
-  "project_page": "https://github.com/inkblot/puppet-xl2tpd",
-  "issues_url": "https://github.com/inkblot/puppet-xl2tpd/issues",
+  "summary": "xl2tpd L2TP client/daemon",
+  "source": "git://github.com/desolat/puppet-xl2tpd.git",
+  "project_page": "https://github.com/desolat/puppet-xl2tpd",
+  "issues_url": "https://github.com/desolat/puppet-xl2tpd/issues",
   "tags": [ "xl2tpd", "vpn" ],
   "operatingsystem_support": [
     {
@@ -15,9 +15,13 @@
     },
     {
       "operatingsystem": "Ubuntu",
-      "operatingsystemrelease": [ "12.04", "14.04", "16.04" ]
+      "operatingsystemrelease": [ "12.04", "14.04", "16.04", "18.04" ]
     }
   ],
-  "dependencies": [],
-  "data_provider": "hiera"
+  "dependencies": [
+    {
+      "name": "puppetlabs-concat",
+      "version_requirement": ">= 1.0.0 < 7.0.0"
+    }
+  ]
 }
