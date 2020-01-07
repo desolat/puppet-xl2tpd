@@ -6,7 +6,6 @@ class xl2tpd (
     String $service_name,
     Hash $global         = {},
     Hash $conn,
-    Boolean $debug          = false,
     $conf_file           = '/etc/xl2tpd/xl2tpd.conf',
 ) {
     File {
@@ -33,6 +32,12 @@ class xl2tpd (
         order   => '01',
     }
 
+    concat::fragment { 'xl2tpd_conf_global':
+        content => template('xl2tpd/xl2tpd_conf_global.erb'),
+        target  => $conf_file,
+        order   => '02',
+    }
+
     $conn.each |$conn_name, $config| {
         $ppp_opt_file = "/etc/ppp/${conn_name}.l2tpd.client"
         if has_key($config, 'lac') {
@@ -40,7 +45,7 @@ class xl2tpd (
             concat::fragment { "xl2tpd_conf_lac_${conn_name}":
                 content => template('xl2tpd/xl2tpd_conf_lac.erb'),
                 target  => $conf_file,
-                order   => '02',
+                order   => '03',
                 require => Package[$package_name],
                 notify  => Service[$service_name],
             }
